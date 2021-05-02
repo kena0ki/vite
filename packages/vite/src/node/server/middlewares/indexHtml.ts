@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import MagicString from 'magic-string'
-import { NodeTypes } from '@vue/compiler-dom'
+import { AttributeNode, NodeTypes } from '@vue/compiler-dom'
 import { Connect } from 'types/connect'
 import {
   applyHtmlTransforms,
@@ -10,7 +10,7 @@ import {
   resolveHtmlTransforms,
   traverseHtml
 } from '../../plugins/html'
-import { ViteDevServer } from '../..'
+import { ResolvedConfig, ViteDevServer } from '../..'
 import { send } from '../send'
 import { CLIENT_PUBLIC_PATH, FS_PREFIX } from '../../constants'
 import { cleanUrl, fsPathFromId } from '../../utils'
@@ -41,6 +41,31 @@ function getHtmlFilename(url: string, server: ViteDevServer) {
 }
 
 const startsWithSingleSlashRE = /^\/(?!\/)/
+const processUrlNode = (
+  node: AttributeNode,
+  s: MagicString,
+  config: ResolvedConfig
+) => {
+  const url = node.value?.content || ''
+  if (startsWithSingleSlashRE.test(url)) {
+    // prefix with base
+    s.overwrite(
+      node.value!.loc.start.offset,
+      node.value!.loc.end.offset,
+      `"${config.base + url.slice(1)}"`
+    )
+  }
+  // #3230 if some request url (localhost:3000/a/b) return to fallback html, the relative assets
+  // path will add `/a/` prefix, it will caused 404.
+  // here add prefix `/@fs/` for the relative assets path.
+  if (url.startsWith('.')) {
+    s.overwrite(
+      node.value!.loc.start.offset,
+      node.value!.loc.end.offset,
+      `"${FS_PREFIX + path.resolve(config.root, url.slice(1))}"`
+    )
+  }
+}
 const devHtmlHook: IndexHtmlTransformHook = async (
   html,
   { path: htmlPath, server }
@@ -67,15 +92,7 @@ const devHtmlHook: IndexHtmlTransformHook = async (
       }
 
       if (src) {
-        const url = src.value?.content || ''
-        if (startsWithSingleSlashRE.test(url)) {
-          // prefix with base
-          s.overwrite(
-            src.value!.loc.start.offset,
-            src.value!.loc.end.offset,
-            `"${config.base + url.slice(1)}"`
-          )
-        }
+        processUrlNode(src, s, config)
       } else if (isModule) {
         // inline js module. convert to src="proxy"
         s.overwrite(
@@ -97,14 +114,7 @@ const devHtmlHook: IndexHtmlTransformHook = async (
           p.value &&
           assetAttrs.includes(p.name)
         ) {
-          const url = p.value.content || ''
-          if (startsWithSingleSlashRE.test(url)) {
-            s.overwrite(
-              p.value.loc.start.offset,
-              p.value.loc.end.offset,
-              `"${config.base + url.slice(1)}"`
-            )
-          }
+          processUrlNode(p, s, config)
         }
       }
     }
