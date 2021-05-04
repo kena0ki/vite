@@ -18,16 +18,19 @@ import { assetAttrsConfig } from '../../plugins/html'
 
 export function createDevHtmlTransformFn(
   server: ViteDevServer
-): (url: string, html: string) => Promise<string> {
+): (url: string, html: string, originalUrl: string) => Promise<string> {
   const [preHooks, postHooks] = resolveHtmlTransforms(server.config.plugins)
 
-  return (url: string, html: string): Promise<string> => {
+  return (url: string, html: string, originalUrl: string): Promise<string> => {
     return applyHtmlTransforms(
       html,
       url,
       getHtmlFilename(url, server),
       [...preHooks, devHtmlHook, ...postHooks],
-      server
+      server,
+      undefined,
+      undefined,
+      originalUrl
     )
   }
 }
@@ -41,10 +44,12 @@ function getHtmlFilename(url: string, server: ViteDevServer) {
 }
 
 const startsWithSingleSlashRE = /^\/(?!\/)/
-const processUrlNode = (
+const processNodeUrl = (
   node: AttributeNode,
   s: MagicString,
-  config: ResolvedConfig
+  config: ResolvedConfig,
+  htmlPath: string,
+  originalUrl?: string
 ) => {
   const url = node.value?.content || ''
   if (startsWithSingleSlashRE.test(url)) {
@@ -54,19 +59,21 @@ const processUrlNode = (
       node.value!.loc.end.offset,
       `"${config.base + url.slice(1)}"`
     )
-  } else if (url.startsWith('.')) {
+  } else if (url.startsWith('.') && originalUrl && htmlPath === '/index.html') {
     // #3230 if some request url (localhost:3000/a/b) return to fallback html, the relative assets
     // path will add `/a/` prefix, it will caused 404.
+    // rewrite before `./index.js` -> `/a/index.js`.
+    // rewrite after `./index.js` -> `../index.js`.
     s.overwrite(
       node.value!.loc.start.offset,
       node.value!.loc.end.offset,
-      `"${path.resolve(config.root, url.slice(1))}"`
+      `"${path.join(path.relative(originalUrl, '/'), url.slice(1))}"`
     )
   }
 }
 const devHtmlHook: IndexHtmlTransformHook = async (
   html,
-  { path: htmlPath, server }
+  { path: htmlPath, server, originalUrl }
 ) => {
   // TODO: solve this design issue
   // Optional chain expressions can return undefined by design
@@ -90,7 +97,7 @@ const devHtmlHook: IndexHtmlTransformHook = async (
       }
 
       if (src) {
-        processUrlNode(src, s, config)
+        processNodeUrl(src, s, config, htmlPath, originalUrl)
       } else if (isModule) {
         // inline js module. convert to src="proxy"
         s.overwrite(
@@ -112,7 +119,7 @@ const devHtmlHook: IndexHtmlTransformHook = async (
           p.value &&
           assetAttrs.includes(p.name)
         ) {
-          processUrlNode(p, s, config)
+          processNodeUrl(p, s, config, htmlPath, originalUrl)
         }
       }
     }
@@ -146,7 +153,7 @@ export function indexHtmlMiddleware(
       if (fs.existsSync(filename)) {
         try {
           let html = fs.readFileSync(filename, 'utf-8')
-          html = await server.transformIndexHtml(url, html)
+          html = await server.transformIndexHtml(url, html, req.originalUrl)
           return send(req, res, html, 'html')
         } catch (e) {
           return next(e)

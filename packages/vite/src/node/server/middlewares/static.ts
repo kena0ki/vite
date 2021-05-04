@@ -49,7 +49,6 @@ export function serveStaticMiddleware(
     if (path.extname(cleanUrl(url)) === '.html') {
       return next()
     }
-
     // apply aliases to static requests as well
     let redirected: string | undefined
     for (const { find, replacement } of config.resolve.alias) {

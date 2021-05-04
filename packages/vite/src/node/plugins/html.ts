@@ -431,6 +431,7 @@ export interface IndexHtmlTransformContext {
   server?: ViteDevServer
   bundle?: OutputBundle
   chunk?: OutputChunk
+  originalUrl?: string
 }
 
 export type IndexHtmlTransformHook = (
@@ -474,7 +475,8 @@ export async function applyHtmlTransforms(
   hooks: IndexHtmlTransformHook[],
   server?: ViteDevServer,
   bundle?: OutputBundle,
-  chunk?: OutputChunk
+  chunk?: OutputChunk,
+  originalUrl?: string
 ): Promise<string> {
   const headTags: HtmlTagDescriptor[] = []
   const headPrependTags: HtmlTagDescriptor[] = []
@@ -486,7 +488,8 @@ export async function applyHtmlTransforms(
     filename,
     server,
     bundle,
-    chunk
+    chunk,
+    originalUrl
   }
 
   for (const hook of hooks) {
