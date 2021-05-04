@@ -57,11 +57,10 @@ const processUrlNode = (
   } else if (url.startsWith('.')) {
     // #3230 if some request url (localhost:3000/a/b) return to fallback html, the relative assets
     // path will add `/a/` prefix, it will caused 404.
-    // here add prefix `/@fs/` for the relative assets path.
     s.overwrite(
       node.value!.loc.start.offset,
       node.value!.loc.end.offset,
-      `"${FS_PREFIX + path.resolve(config.root, url.slice(1))}"`
+      `"${path.resolve(config.root, url.slice(1))}"`
     )
   }
 }
