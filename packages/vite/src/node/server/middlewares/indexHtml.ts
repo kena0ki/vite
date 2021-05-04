@@ -59,7 +59,12 @@ const processNodeUrl = (
       node.value!.loc.end.offset,
       `"${config.base + url.slice(1)}"`
     )
-  } else if (url.startsWith('.') && originalUrl && htmlPath === '/index.html') {
+  } else if (
+    url.startsWith('.') &&
+    originalUrl &&
+    originalUrl !== '/' &&
+    htmlPath === '/index.html'
+  ) {
     // #3230 if some request url (localhost:3000/a/b) return to fallback html, the relative assets
     // path will add `/a/` prefix, it will caused 404.
     // rewrite before `./index.js` -> `localhost:3000/a/index.js`.
