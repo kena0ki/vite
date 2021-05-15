@@ -5,7 +5,7 @@ import {
   SFCDescriptor,
   SFCTemplateCompileOptions
 } from '@vue/compiler-sfc'
-import { PluginContext, TransformPluginContext } from 'rollup'
+import type { PluginContext, TransformPluginContext } from 'rollup'
 import { ResolvedOptions } from '.'
 import { getResolvedScript } from './script'
 import { createRollupError } from './utils/error'
