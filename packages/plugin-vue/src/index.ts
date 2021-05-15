@@ -8,8 +8,8 @@ try {
 }
 
 import fs from 'fs'
-import { Plugin, ViteDevServer } from 'vite'
-import { createFilter } from '@rollup/pluginutils'
+import type { Plugin, ViteDevServer } from 'vite'
+// import { createFilter } from '@rollup/pluginutils'
 import {
   SFCBlock,
   SFCScriptCompileOptions,
@@ -25,6 +25,9 @@ import { transformMain } from './main'
 // import { handleHotUpdate } from './handleHotUpdate'
 import { transformTemplateAsModule } from './template'
 import { transformStyle } from './style'
+
+const handleHotUpdate: any = () => {}
+const createFilter: any = () => {}
 
 // extend the descriptor so we can store the scopeId on it
 declare module '@vue/compiler-sfc' {
@@ -121,12 +124,12 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin {
   return {
     name: 'vite:vue',
 
-    // handleHotUpdate(ctx) {
-    //   if (!filter(ctx.file)) {
-    //     return
-    //   }
-    //   return handleHotUpdate(ctx)
-    // },
+    handleHotUpdate(ctx) {
+      if (!filter(ctx.file)) {
+        return
+      }
+      return handleHotUpdate(ctx)
+    },
 
     config(config) {
       return {
