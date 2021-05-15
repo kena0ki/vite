@@ -10,7 +10,7 @@ import {
 import { PluginContext, TransformPluginContext } from 'rollup'
 import { resolveScript } from './script'
 import { transformTemplateInMain } from './template'
-import { isOnlyTemplateChanged, isEqualBlock } from './handleHotUpdate'
+// import { isOnlyTemplateChanged, isEqualBlock } from './handleHotUpdate'
 import { RawSourceMap, SourceMapConsumer, SourceMapGenerator } from 'source-map'
 import { createRollupError } from './utils/error'
 
@@ -25,7 +25,7 @@ export async function transformMain(
   const { root, devServer, isProduction } = options
 
   // prev descriptor is only set and used for hmr
-  const prevDescriptor = getPrevDescriptor(filename)
+  // const prevDescriptor = getPrevDescriptor(filename)
   const { descriptor, errors } = createDescriptor(
     filename,
     code,
@@ -78,16 +78,16 @@ export async function transformMain(
       ? `_sfc_main.ssrRender = _sfc_ssrRender`
       : `_sfc_main.render = _sfc_render`
   } else {
-    // #2128
-    // User may empty the template but we didn't provide rerender function before
-    if (
-      prevDescriptor &&
-      !isEqualBlock(descriptor.template, prevDescriptor.template)
-    ) {
-      renderReplace = ssr
-        ? `_sfc_main.ssrRender = () => {}`
-        : `_sfc_main.render = () => {}`
-    }
+    // // #2128
+    // // User may empty the template but we didn't provide rerender function before
+    // if (
+    //   prevDescriptor &&
+    //   !isEqualBlock(descriptor.template, prevDescriptor.template)
+    // ) {
+    //   renderReplace = ssr
+    //     ? `_sfc_main.ssrRender = () => {}`
+    //     : `_sfc_main.render = () => {}`
+    // }
   }
 
   // styles
@@ -114,32 +114,32 @@ export async function transformMain(
   }
   output.push('export default _sfc_main')
 
-  // HMR
-  if (
-    devServer &&
-    devServer.config.server.hmr !== false &&
-    !ssr &&
-    !isProduction
-  ) {
-    output.push(`_sfc_main.__hmrId = ${JSON.stringify(descriptor.id)}`)
-    output.push(
-      `typeof __VUE_HMR_RUNTIME__ !== 'undefined' && ` +
-        `__VUE_HMR_RUNTIME__.createRecord(_sfc_main.__hmrId, _sfc_main)`
-    )
-    // check if the template is the only thing that changed
-    if (prevDescriptor && isOnlyTemplateChanged(prevDescriptor, descriptor)) {
-      output.push(`export const _rerender_only = true`)
-    }
-    output.push(
-      `import.meta.hot.accept(({ default: updated, _rerender_only }) => {`,
-      `  if (_rerender_only) {`,
-      `    __VUE_HMR_RUNTIME__.rerender(updated.__hmrId, updated.render)`,
-      `  } else {`,
-      `    __VUE_HMR_RUNTIME__.reload(updated.__hmrId, updated)`,
-      `  }`,
-      `})`
-    )
-  }
+  // // HMR
+  // if (
+  //   devServer &&
+  //   devServer.config.server.hmr !== false &&
+  //   !ssr &&
+  //   !isProduction
+  // ) {
+  //   output.push(`_sfc_main.__hmrId = ${JSON.stringify(descriptor.id)}`)
+  //   output.push(
+  //     `typeof __VUE_HMR_RUNTIME__ !== 'undefined' && ` +
+  //       `__VUE_HMR_RUNTIME__.createRecord(_sfc_main.__hmrId, _sfc_main)`
+  //   )
+  //   // check if the template is the only thing that changed
+  //   if (prevDescriptor && isOnlyTemplateChanged(prevDescriptor, descriptor)) {
+  //     output.push(`export const _rerender_only = true`)
+  //   }
+  //   output.push(
+  //     `import.meta.hot.accept(({ default: updated, _rerender_only }) => {`,
+  //     `  if (_rerender_only) {`,
+  //     `    __VUE_HMR_RUNTIME__.rerender(updated.__hmrId, updated.render)`,
+  //     `  } else {`,
+  //     `    __VUE_HMR_RUNTIME__.reload(updated.__hmrId, updated)`,
+  //     `  }`,
+  //     `})`
+  //   )
+  // }
 
   // SSR module registration by wrapping user setup
   if (ssr) {

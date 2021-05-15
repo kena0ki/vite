@@ -20,7 +20,7 @@ import { parseVueRequest } from './utils/query'
 import { getDescriptor } from './utils/descriptorCache'
 import { getResolvedScript } from './script'
 import { transformMain } from './main'
-import { handleHotUpdate } from './handleHotUpdate'
+// import { handleHotUpdate } from './handleHotUpdate'
 import { transformTemplateAsModule } from './template'
 import { transformStyle } from './style'
 
@@ -69,12 +69,12 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin {
   return {
     name: 'vite:vue',
 
-    handleHotUpdate(ctx) {
-      if (!filter(ctx.file)) {
-        return
-      }
-      return handleHotUpdate(ctx)
-    },
+    // handleHotUpdate(ctx) {
+    //   if (!filter(ctx.file)) {
+    //     return
+    //   }
+    //   return handleHotUpdate(ctx)
+    // },
 
     config(config) {
       return {
