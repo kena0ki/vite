@@ -1,3 +1,3 @@
-<template src="./template.html"></template>
+<!--<template src="./template.html"></template>-->
 <script src="./script.ts"></script>
-<style src="/@/src-import/style.css" scoped></style>
+<style src="./style.css" scoped></style>

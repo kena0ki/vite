@@ -6,15 +6,16 @@
     <Hmr />
   </div>
   <Syntax />
-  <PreProcessors />
+  <!--<PreProcessors />-->
   <CssModules />
-  <Assets />
+  <!--<Assets />-->
   <CustomBlock />
   <SrcImport />
   <Slotted>
     <div class="slotted">this should be red</div>
   </Slotted>
   <ScanDep/>
+  <SubDir/>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +28,7 @@ import CustomBlock from './CustomBlock.vue'
 import SrcImport from './src-import/SrcImport.vue'
 import Slotted from './Slotted.vue'
 import ScanDep from './ScanDep.vue'
+import SubDir from './src-subdir/SubDir.vue'
 
 import { ref } from 'vue'
 
