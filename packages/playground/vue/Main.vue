@@ -8,7 +8,7 @@
   <Syntax />
   <!--<PreProcessors />-->
   <CssModules />
-  <!--<Assets />-->
+  <Assets />
   <CustomBlock />
   <SrcImport />
   <Slotted>
