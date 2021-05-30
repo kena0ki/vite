@@ -4,6 +4,7 @@
     Relative
     <img class="relative-import" src="./assets/asset.png" />
   </p>
+  <!--
   <p>
     Absolute
     <img class="absolute-import" src="/assets/asset.png" />
@@ -11,6 +12,11 @@
   <p>
     Absolute import from public dir
     <img class="public-import" src="/icon.png" />
+  </p>
+  -->
+  <p>
+    Relative import from another dir
+    <img class="relative-import2" src="./public/icon.png" />
   </p>
   <p>
     Relative URL in style
