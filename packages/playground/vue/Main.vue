@@ -19,7 +19,6 @@
     <AsyncComponent />
   </Suspense>
   <RefTransform />
-  <ScanDep/>
   <SubDir/>
 </template>
 
