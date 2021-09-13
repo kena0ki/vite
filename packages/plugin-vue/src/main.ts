@@ -8,7 +8,8 @@ import {
   setDescriptor
 } from './utils/descriptorCache'
 import { PluginContext, SourceMap, TransformPluginContext } from 'rollup'
-import { normalizePath } from '@rollup/pluginutils'
+// import { normalizePath } from '@rollup/pluginutils'
+import { win32, posix } from 'path';
 import { resolveScript } from './script'
 import { transformTemplateInMain } from './template'
 // import { isOnlyTemplateChanged, isEqualBlock } from './handleHotUpdate'
@@ -17,6 +18,7 @@ import { createRollupError } from './utils/error'
 
 const isEqualBlock: any = () => {};
 const isOnlyTemplateChanged: any = () => {};
+const normalizePath = (filename: string) => filename.split(win32.sep).join(posix.sep);
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function transformMain(
